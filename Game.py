@@ -23,6 +23,7 @@ all_group = pygame.sprite.LayeredUpdates()
 
 class Game:
     def __init__(self, title='太空陨石'):
+        self.score = 0
         self.size = (480, 700)
         self.screen = pygame.display.set_mode(self.size)
         self.title = title
@@ -32,6 +33,7 @@ class Game:
         self.FPS = 60
         self.meteorites_count = 10
         self.bullets_count = 3
+        self.font = pygame.font.SysFont("simsunnsimsun", 16)
         self.s_bomb1 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB1.ogg"))
         self.s_bomb2 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB2.ogg"))
         self.s_bomb3 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB3.ogg"))
@@ -64,15 +66,25 @@ class Game:
 
     def play_bomb_sound(self, mete):
         if mete.img_size[0] >= 200:
+            self.s_bomb6.stop()
             self.s_bomb6.play(0, 0, 0)
+            self.score += 16
         elif mete.img_size[0] >= 150:
+            self.s_bomb5.stop()
             self.s_bomb5.play(0, 0, 0)
+            self.score += 8
         elif mete.img_size[0] >= 100:
+            self.s_bomb4.stop()
             self.s_bomb4.play(0, 0, 0)
+            self.score += 4
         elif mete.img_size[0] >= 50:
+            self.s_bomb3.stop()
             self.s_bomb3.play(0, 0, 0)
+            self.score += 2
         else:
+            self.s_bomb2.stop()
             self.s_bomb2.play(0, 0, 0)
+            self.score += 1
 
     def collision_groups(self):
         collisions = pygame.sprite.groupcollide(bullet_group, meteorite_group, True, False)
@@ -89,6 +101,7 @@ class Game:
             for air in airs:
                 if air.collisions > 0:
                     air.destroy_start = True
+                    self.s_bomb1.stop()
                     self.s_bomb1.play(0, 0, 0)
                 if air.allowed_collision:
                     air.collisions += 1
@@ -116,18 +129,21 @@ class Game:
                 if key_pressed[pygame.K_SPACE]:
                     b_count = len(bullet_group.sprites())
                     if b_count < self.bullets_count:
+                        self.szd1.stop()
                         self.szd1.play(0, 0, 0)
                         bullet = Bullet((all_group, bullet_group), self.screen, source_dir)
                         bullet.rect.x = sprite.rect.x + 20
                         bullet.rect.y = sprite.rect.y
                     b_count = len(bullet_group.sprites())
                     if b_count < self.bullets_count:
+                        self.szd2.stop()
                         self.szd2.play(0, 0, 0)
                         bullet1 = Bullet((all_group, bullet_group), self.screen, source_dir)
                         bullet1.rect.x = sprite.rect.x + 35
                         bullet1.rect.y = sprite.rect.y
                     b_count = len(bullet_group.sprites())
                     if b_count < self.bullets_count:
+                        self.szd3.stop()
                         self.szd3.play(0, 0, 0)
                         bullet2 = Bullet((all_group, bullet_group), self.screen, source_dir)
                         bullet2.rect.x = sprite.rect.x + 5
@@ -149,6 +165,12 @@ class Game:
                     upr.direction = 4
                     sprite.update(upr)
 
+    def show_info(self):
+        score = self.font.render(f'得分:{self.score}', True, (255, 255, 0))
+        score_position_x = (self.size[0] - score.get_size()[0]) / 2
+        score_position_y = 10
+        self.screen.blit(score, (score_position_x, score_position_y))
+
     def run(self):
         pygame.display.set_caption(self.title)
         pygame.mixer.music.play(-1)
@@ -163,6 +185,7 @@ class Game:
             self.control_groups()
             all_group.update(updatePar)
             self.draw_groups()
+            self.show_info()
             pygame.display.flip()
 
 

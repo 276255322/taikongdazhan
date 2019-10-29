@@ -48,12 +48,20 @@ class Aircraft(pygame.sprite.Sprite):
             self.invisible.load("wdysfj.png", 64, 64, 4)
         if self.allowed_collision is False and self.allowed_control is False:
             self.rect = self.rect.move(self.speed)
-        if self.allowed_control is True and updatePar.direction > 0:
+        if self.allowed_control and updatePar.direction > 0:
             if updatePar.direction == 1:
+                if self.rect.y <= 0:
+                    return
                 self.rect = self.rect.move([0, -4])
             elif updatePar.direction == 2:
+                if self.rect.y + self.img_size[1] >= size[1]:
+                    return
                 self.rect = self.rect.move([0, 4])
             elif updatePar.direction == 3:
+                if self.rect.x <= 0:
+                    return
                 self.rect = self.rect.move([-4, 0])
             elif updatePar.direction == 4:
+                if self.rect.x + self.img_size[0] >= size[0]:
+                    return
                 self.rect = self.rect.move([4, 0])
