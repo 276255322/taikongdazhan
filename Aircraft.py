@@ -129,7 +129,10 @@ class Aircraft(pygame.sprite.Sprite):
             self.play.play -= 1
         if self.invisible is None and self.allowed_collision is False:
             self.invisible = CircularAnim(self.destroy_groups, self, 4)
-            self.invisible.load("wdysfj.png", 64, 64, 4)
+            if self.play.index == 1:
+                self.invisible.load("wdysfj1.png", 64, 64, 4)
+            else:
+                self.invisible.load("wdysfj.png", 64, 64, 4)
         if self.allowed_collision is False and self.allowed_control is False:
             self.rect = self.rect.move(self.speed)
         if self.allowed_control and updatePar.direction > 0:
