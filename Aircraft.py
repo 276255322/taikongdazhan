@@ -12,18 +12,17 @@ from TextAnim import TextAnim
 # 飞机精灵类
 class Aircraft(pygame.sprite.Sprite):
     def __init__(self, groups, destroy_groups, target, play, src):
-        self._layer = 10
-        self.play = play
-        self.groups = groups
-        self.destroy_groups = destroy_groups
+        self._layer = 10  # 层数
+        self.play = play  # 玩家对象
+        self.groups = groups  # 所属组
+        self.destroy_groups = destroy_groups  # 毁灭动画组
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.target = target  # 上层对象
-        self.target_size = self.target.image.get_size()
+        self.target_size = self.target.image.get_size()  # 上层对象大小
         self.src = src  # 资源目录
         self.filepath = os.path.join(self.src, 'fj.png')
         self.image = pygame.image.load(self.filepath).convert_alpha()
-        self.speed = [0, -4]
-        self.score = 0  # 飞机得分
+        self.speed = [0, -4]  # 飞机速度
         self.power = 0  # 武器威力
         self.move_speed = 0  # 移动速度
         self.bomb = 3  # 炸弹数量
@@ -35,18 +34,18 @@ class Aircraft(pygame.sprite.Sprite):
         self.invisible = None  # 隐身动画
         self.destroy_start = False  # 是否开启自毁
         self.destroy = None  # 自毁动画
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)  # 飞机遮罩用于碰撞检测
         self.rect.x = self.target_size[0] / 2 - self.img_size[0] / 2
         self.rect.y = self.target_size[1]
 
     def add_score(self, num):
-        self.score += num
+        self.play.score += num
         if self.play.reward_play > len(self.target.reward_play_nums):
             return
         n = 0
         for r_score in self.target.reward_play_nums:
             if self.play.reward_play == n:
-                if self.score >= r_score:
+                if self.play.score >= r_score:
                     self.play.play += 1
                     self.play.reward_play += 1
                     self.target.reward_play.play(0, 0, 0)

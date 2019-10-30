@@ -62,17 +62,23 @@ class Game:
         self.aircraft_time = 0
         self.reward_time = 0
         self.meteorite_time = 0
-        self.play1 = Play()
+        self.play1 = Play(0, 0)
         self.play1_icon = pygame.image.load(os.path.join(source_dir, "fj_x.png")).convert_alpha()
-        self.play2 = Play()
+        self.play2 = Play(0, 1)
         self.play2_icon = pygame.image.load(os.path.join(source_dir, "fj1_x.png")).convert_alpha()
         self.Continue = False
         pygame.mixer.music.load(os.path.join(source_dir, "m1.mp3"))
 
     def create_groups(self):
-        a_count = len(aircraft_group.sprites())
+        is_play1 = False
+        is_play2 = False
+        for air in aircraft_group.sprites():
+            if air.play.index == 0:
+                is_play1 = True
+            elif air.play.index == 1:
+                is_play2 = True
         if self.aircraft_time == 0 or self.clock_ticks - self.aircraft_time > 4000:
-            if a_count < 1 and self.play1.play > 0:
+            if is_play1 is False and self.play1.play > 0:
                 self.aircraft_time = self.clock_ticks
                 Aircraft((all_group, aircraft_group), (all_group, circular_group), self, self.play1, source_dir)
         if self.meteorite_time == 0 or self.clock_ticks - self.meteorite_time > 100:
@@ -200,10 +206,8 @@ class Game:
             key_pressed = pygame.key.get_pressed()
             if key_pressed[pygame.K_y] or key_pressed[pygame.K_RETURN]:
                 self.Continue = False
-                self.play1 = Play()
-                self.play2 = Play()
-                self.play1.play = self.play_number
-                self.play2.play = self.play_number
+                self.play1 = Play(0, self.play_number)
+                self.play2 = Play(1, self.play_number)
             elif key_pressed[pygame.K_n] or key_pressed[pygame.K_ESCAPE]:
                 sys.exit()
         for sprite in aircraft_group.sprites():
@@ -231,18 +235,17 @@ class Game:
                     sprite.update(upr)
 
     def show_info(self):
-        score_count = 0
+        score_count = self.play1.score + self.play2.score
         n = 0
         for sprite in aircraft_group.sprites():
-            score_count += sprite.score
             if n == 0:
-                self.play1.score = sprite.score
                 self.play1.bomb = sprite.bomb
                 self.play1.power = sprite.power
+                self.play1.move_speed = sprite.move_speed
             elif n == 1:
-                self.play2.score = sprite.score
                 self.play2.bomb = sprite.bomb
                 self.play2.power = sprite.power
+                self.play2.move_speed = sprite.move_speed
             n += 1
         score = self.font.render(f'得分:{score_count}', True, (255, 255, 0))
         s_position_x = (self.size[0] - score.get_size()[0]) / 2
