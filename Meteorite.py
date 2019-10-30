@@ -34,6 +34,7 @@ class Meteorite(pygame.sprite.Sprite):
         self.rect.left = random.randint(-self.img_size[0], self.target_size[0] + 10)
         self.rect.top = -self.img_size[0] + 10
         self.bottom_max = random.randint(0, self.target_size[1])
+        self.mask = pygame.mask.from_surface(self.image)
         self.collisions = 0  # 碰撞次数
 
     def update(self, updatePar):

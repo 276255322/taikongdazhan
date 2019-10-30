@@ -42,7 +42,7 @@ class Game:
         self.bg = GameBackground((all_group, bg_group), self, source_dir, vector2(0, 0))
         self.FPS = 60
         self.meteorites_count = 10
-        self.reward_play_nums = [100, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 600000, 700000,
+        self.reward_play_nums = [1000, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 600000, 700000,
                                  800000, 900000, 1000000]  # 游戏次数奖励集合
         self.reward_count = 2
         self.font = pygame.font.SysFont("simsunnsimsun", 16)
@@ -133,7 +133,7 @@ class Game:
         air.add_score(score)
 
     def collision_groups(self):
-        collisions = pygame.sprite.groupcollide(bullet_group, meteorite_group, True, False)
+        collisions = pygame.sprite.groupcollide(bullet_group, meteorite_group, True, False, pygame.sprite.collide_mask)
         for items in collisions.items():
             bullet = items[0]
             metes = items[1]
@@ -143,7 +143,8 @@ class Game:
                     self.play_bomb_score(bullet.carrier, mete)
                     mete.destroy_start = True
                 mete.collisions += 1
-        air_collisions = pygame.sprite.groupcollide(meteorite_group, aircraft_group, False, False)
+        air_collisions = pygame.sprite.groupcollide(meteorite_group, aircraft_group, False, False,
+                                                    pygame.sprite.collide_mask)
         for items in air_collisions.items():
             airs = items[1]
             for air in airs:

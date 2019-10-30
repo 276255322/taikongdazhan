@@ -35,6 +35,7 @@ class Aircraft(pygame.sprite.Sprite):
         self.invisible = None  # 隐身动画
         self.destroy_start = False  # 是否开启自毁
         self.destroy = None  # 自毁动画
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = self.target_size[0] / 2 - self.img_size[0] / 2
         self.rect.y = self.target_size[1]
 
@@ -195,7 +196,7 @@ class Aircraft(pygame.sprite.Sprite):
         elif self.power == 5:
             bullets_speed = 7
             bullets_count = 24
-        elif self.power > 6:
+        elif self.power > 5:
             bullets_speed = 8
             bullets_count = 34
 
@@ -236,7 +237,7 @@ class Aircraft(pygame.sprite.Sprite):
                 bullet4.rect.x = self.rect.x - 10
                 bullet4.rect.y = self.rect.y
                 bullet4.speed[1] = - bullets_speed
-        if self.power >= 6:
+        if self.power > 5:
             if b_count < bullets_count:
                 target.szd1.stop()
                 target.szd1.play(0, 0, 0)

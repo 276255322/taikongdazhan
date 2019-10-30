@@ -20,6 +20,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.img_size = self.image.get_size()
         self.collisions = 0  # 碰撞次数
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = self.target_size[0] / 2 - self.img_size[0] / 2
         self.rect.y = self.target_size[1]
 
