@@ -14,7 +14,7 @@ class GameBackground(pygame.sprite.Sprite):
         self.groups = groups
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.target = target  # 上层Surface对象
-        self.target_size = self.target.get_size()
+        self.target_size = self.target.image.get_size()
         self.src = src  # 资源目录
         self.image = pygame.image.load(os.path.join(self.src, "xkbj2.jpg"))
         self.rect = self.image.get_rect()

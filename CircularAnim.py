@@ -25,6 +25,8 @@ class CircularAnim(pygame.sprite.Sprite):
         self.filepath = None  # 动画图片路径
         self.circular = 0  # 动画循环次数
         self.circular_max = circular_max  # 动画循环最大次数
+        self.anim_size = None  # 动画大小
+        self.anim_position = None  # 动画位置
 
     def load(self, filename, width, height, columns):
         self.filepath = os.path.join(self.target.src, filename)
@@ -51,8 +53,15 @@ class CircularAnim(pygame.sprite.Sprite):
             frame_y = (self.frame // self.columns) * self.frame_height
             rect = (frame_x, frame_y, self.frame_width, self.frame_height)
             self.image = self.master_image.subsurface(rect)
-            self.image = pygame.transform.scale(self.image, self.target.img_size)
+            if self.anim_size is None:
+                self.image = pygame.transform.scale(self.image, self.target.img_size)
+            else:
+                self.image = pygame.transform.scale(self.image, self.anim_size)
             self.rect = self.image.get_rect()
-            self.rect.x = self.target.rect.x
-            self.rect.y = self.target.rect.y
+            if self.anim_position is None:
+                self.rect.x = self.target.rect.x
+                self.rect.y = self.target.rect.y
+            else:
+                self.rect.x = self.anim_position[0]
+                self.rect.y = self.anim_position[1]
             self.old_frame = self.frame

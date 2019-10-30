@@ -14,14 +14,14 @@ class Meteorite(pygame.sprite.Sprite):
         self.groups = groups
         self.destroy_groups = destroy_groups
         pygame.sprite.Sprite.__init__(self, self.groups)
-        self.target = target  # 上层Surface对象
-        self.target_size = self.target.get_size()
+        self.target = target  # 上层对象
+        self.target_size = self.target.image.get_size()
         self.destroy_start = False  # 是否开启自毁
         self.destroy = None  # 自毁动画
         self.src = src  # 资源目录
         self.filepath = os.path.join(self.src, 'ys' + str(random.randint(1, 4)) + '.png')
         self.image = pygame.image.load(self.filepath).convert_alpha()
-        m_wh = random.randint(10, 200);
+        m_wh = random.randint(10, 200)
         self.image = pygame.transform.scale(self.image, (m_wh, m_wh))
         mx_true = random.randint(0, 1)
         my_true = random.randint(0, 1)
@@ -31,14 +31,13 @@ class Meteorite(pygame.sprite.Sprite):
         self.speed = [0, random.randint(1, 5)]
         self.rect = self.image.get_rect()
         self.img_size = self.image.get_size()
-        size = self.target.get_size()
-        self.rect.left = random.randint(-self.img_size[0], size[0] + 10)
+        self.rect.left = random.randint(-self.img_size[0], self.target_size[0] + 10)
         self.rect.top = -self.img_size[0] + 10
-        self.bottom_max = random.randint(0, size[1])
+        self.bottom_max = random.randint(0, self.target_size[1])
         self.collisions = 0  # 碰撞次数
 
     def update(self, updatePar):
-        size = self.target.get_size()
+        size = self.target.image.get_size()
         if self.destroy_start and self.destroy is None:
             self.destroy = CircularAnim(self.destroy_groups, self, 4)
             self.destroy.load("ysbz.png", 64, 64, 4)
