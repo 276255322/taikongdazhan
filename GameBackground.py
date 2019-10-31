@@ -3,20 +3,20 @@
 import pygame
 import os
 import random
+import gl
 
 vector2 = pygame.math.Vector2
 
 
 # 背景类
 class GameBackground(pygame.sprite.Sprite):
-    def __init__(self, groups, target, src, pos):
+    def __init__(self, groups, target, pos):
         self._layer = -1
         self.groups = groups
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.target = target  # 上层Surface对象
         self.target_size = self.target.image.get_size()
-        self.src = src  # 资源目录
-        self.image = pygame.image.load(os.path.join(self.src, "xkbj2.jpg"))
+        self.image = pygame.image.load(os.path.join(gl.source_dir, "xkbj2.jpg"))
         self.rect = self.image.get_rect()
         self.pos = pos
         self.rect.x = self.pos.x
@@ -26,8 +26,10 @@ class GameBackground(pygame.sprite.Sprite):
         cent = self.rect.width - self.target_size[0]
         if cent > 0:
             self.rect.x = -(random.randint(0, cent))
+        self.show = False
 
     def update(self, updatePar):
+        self.show = True
         if updatePar.current_time > self.last_time + updatePar.fps + 50:
             self.rect.y += 1
             self.last_time = updatePar.current_time
@@ -36,4 +38,4 @@ class GameBackground(pygame.sprite.Sprite):
         if not self.parent:
             if self.rect.y >= 0:
                 self.parent = True
-                GameBackground(self.groups, self.target, self.src, vector2(0, -self.target_size[1]))
+                GameBackground(self.groups, self.target, vector2(0, -self.target_size[1]))

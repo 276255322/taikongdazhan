@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import pygame
+import gl
 
 
 # 文本动画精灵
@@ -19,6 +20,7 @@ class TextAnim(pygame.sprite.Sprite):
         self.circular = 0  # 动画循环次数
         self.circular_max = circular_max  # 动画循环最大次数
         self.last_time = 0
+        self.show = False
 
     def update(self, updatePar):
         if 0 < self.circular_max < self.circular:
@@ -50,3 +52,4 @@ class TextAnim(pygame.sprite.Sprite):
             if self.frame > 5:
                 self.frame = 0
             self.last_time = updatePar.current_time
+            self.show = True

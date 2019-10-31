@@ -3,23 +3,22 @@
 import pygame
 import os
 import random
+import gl
 
 from CircularAnim import CircularAnim
 
 
 # 陨石精灵类
 class Meteorite(pygame.sprite.Sprite):
-    def __init__(self, groups, destroy_groups, target, src):
+    def __init__(self, groups, target):
         self._layer = 10
         self.groups = groups
-        self.destroy_groups = destroy_groups
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.target = target  # 上层对象
         self.target_size = self.target.image.get_size()
         self.destroy_start = False  # 是否开启自毁
         self.destroy = None  # 自毁动画
-        self.src = src  # 资源目录
-        self.filepath = os.path.join(self.src, 'ys' + str(random.randint(1, 4)) + '.png')
+        self.filepath = os.path.join(gl.source_dir, 'ys' + str(random.randint(1, 4)) + '.png')
         self.image = pygame.image.load(self.filepath).convert_alpha()
         m_wh = random.randint(10, 200)
         self.image = pygame.transform.scale(self.image, (m_wh, m_wh))
@@ -36,13 +35,15 @@ class Meteorite(pygame.sprite.Sprite):
         self.bottom_max = random.randint(0, self.target_size[1])
         self.mask = pygame.mask.from_surface(self.image)
         self.collisions = 0  # 碰撞次数
+        self.show = False
 
     def update(self, updatePar):
         size = self.target.image.get_size()
         if self.destroy_start and self.destroy is None:
-            self.destroy = CircularAnim(self.destroy_groups, self, 4)
+            self.destroy = CircularAnim((gl.all_group, gl.circular_group), self, 4)
             self.destroy.load("ysbz.png", 64, 64, 4)
             self.kill()
         elif self.rect.bottom > size[1] + self.img_size[1]:
             self.kill()
+        self.show = True
         self.rect = self.rect.move(self.speed)

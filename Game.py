@@ -4,6 +4,7 @@ import pygame
 import sys
 import os
 import random
+import gl
 
 vector2 = pygame.math.Vector2
 
@@ -14,19 +15,6 @@ from UpdateParameter import UpdateParameter
 from Play import Play
 from Reward import Reward
 from TextAnim import TextAnim
-
-source_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
-circular_group = pygame.sprite.Group()
-s_reward_group = pygame.sprite.Group()
-p_reward_group = pygame.sprite.Group()
-reward_group = pygame.sprite.Group()
-bullet_group = pygame.sprite.Group()
-bomb_group = pygame.sprite.Group()
-meteorite_group = pygame.sprite.Group()
-aircraft_group = pygame.sprite.Group()
-text_group = pygame.sprite.Group()
-bg_group = pygame.sprite.Group()
-all_group = pygame.sprite.LayeredUpdates()
 
 
 class Game:
@@ -39,7 +27,7 @@ class Game:
         self.color = (3, 6, 13)
         self.clock = pygame.time.Clock()
         self.clock_ticks = None
-        self.bg = GameBackground((all_group, bg_group), self, source_dir, vector2(0, 0))
+        self.bg = GameBackground((gl.all_group, gl.bg_group), self, vector2(0, 0))
         self.FPS = 60
         self.meteorites_count = 10
         self.reward_play_nums = [1000, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 600000, 700000,
@@ -47,32 +35,34 @@ class Game:
         self.reward_count = 2
         self.font = pygame.font.SysFont("simsunnsimsun", 16)
         self.anim_font = pygame.font.SysFont("simsunnsimsun", 16)
-        self.s_bomb1 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB1.ogg"))
-        self.s_bomb2 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB2.ogg"))
-        self.s_bomb3 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB3.ogg"))
-        self.s_bomb4 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB4.ogg"))
-        self.s_bomb5 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB5.ogg"))
-        self.s_bomb6 = pygame.mixer.Sound(os.path.join(source_dir, "BOMB6.ogg"))
-        self.szd1 = pygame.mixer.Sound(os.path.join(source_dir, "zd1.ogg"))
-        self.szd2 = pygame.mixer.Sound(os.path.join(source_dir, "zd1.ogg"))
-        self.szd3 = pygame.mixer.Sound(os.path.join(source_dir, "zd1.ogg"))
-        self.reward_money = pygame.mixer.Sound(os.path.join(source_dir, "reward_money.ogg"))
-        self.reward_play = pygame.mixer.Sound(os.path.join(source_dir, "reward_play.ogg"))
-        self.reward_power = pygame.mixer.Sound(os.path.join(source_dir, "reward_power.ogg"))
+        self.s_bomb1 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB1.ogg"))
+        self.s_bomb2 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB2.ogg"))
+        self.s_bomb3 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB3.ogg"))
+        self.s_bomb4 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB4.ogg"))
+        self.s_bomb5 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB5.ogg"))
+        self.s_bomb6 = pygame.mixer.Sound(os.path.join(gl.source_dir, "BOMB6.ogg"))
+        self.szd1 = pygame.mixer.Sound(os.path.join(gl.source_dir, "zd1.ogg"))
+        self.szd2 = pygame.mixer.Sound(os.path.join(gl.source_dir, "zd1.ogg"))
+        self.szd3 = pygame.mixer.Sound(os.path.join(gl.source_dir, "zd1.ogg"))
+        self.reward_money = pygame.mixer.Sound(os.path.join(gl.source_dir, "reward_money.ogg"))
+        self.reward_play = pygame.mixer.Sound(os.path.join(gl.source_dir, "reward_play.ogg"))
+        self.reward_power = pygame.mixer.Sound(os.path.join(gl.source_dir, "reward_power.ogg"))
+        self.missile_after = pygame.mixer.Sound(os.path.join(gl.source_dir, "fg.ogg"))
+        self.aircraft_start = pygame.mixer.Sound(os.path.join(gl.source_dir, "fj_start.ogg"))
         self.aircraft_time = 0
         self.reward_time = 0
         self.meteorite_time = 0
         self.play1 = Play(0, 0)
-        self.play1_icon = pygame.image.load(os.path.join(source_dir, "fj_x.png")).convert_alpha()
+        self.play1_icon = pygame.image.load(os.path.join(gl.source_dir, "fj_x.png")).convert_alpha()
         self.play2 = Play(0, 1)
-        self.play2_icon = pygame.image.load(os.path.join(source_dir, "fj1_x.png")).convert_alpha()
+        self.play2_icon = pygame.image.load(os.path.join(gl.source_dir, "fj1_x.png")).convert_alpha()
         self.Continue = False
-        pygame.mixer.music.load(os.path.join(source_dir, "m1.mp3"))
+        pygame.mixer.music.load(os.path.join(gl.source_dir, "m1.mp3"))
 
     def create_groups(self):
         is_play1 = False
         is_play2 = False
-        for air in aircraft_group.sprites():
+        for air in gl.aircraft_group.sprites():
             if air.play.index == 0:
                 is_play1 = True
             elif air.play.index == 1:
@@ -80,21 +70,22 @@ class Game:
         if self.aircraft_time == 0 or self.clock_ticks - self.aircraft_time > 4000:
             if is_play1 is False and self.play1.play > 0:
                 self.aircraft_time = self.clock_ticks
-                Aircraft((all_group, aircraft_group), (all_group, circular_group), self, self.play1, source_dir)
+                Aircraft((gl.all_group, gl.aircraft_group), self, self.play1)
+                self.aircraft_start.play(0, 0, 0)
         if self.meteorite_time == 0 or self.clock_ticks - self.meteorite_time > 100:
-            m_count = len(meteorite_group.sprites())
+            m_count = len(gl.meteorite_group.sprites())
             if m_count < self.meteorites_count:
                 self.meteorite_time = self.clock_ticks
-                Meteorite((all_group, meteorite_group), (all_group, circular_group), self, source_dir)
+                Meteorite((gl.all_group, gl.meteorite_group), self)
         if self.reward_time == 0 or self.clock_ticks - self.reward_time > 100:
-            r_count = len(reward_group.sprites())
+            r_count = len(gl.reward_group.sprites())
             if r_count < self.reward_count:
                 self.reward_time = self.clock_ticks
                 rtype = random.randint(0, 1)
                 if rtype == 1:
-                    Reward((all_group, reward_group, s_reward_group), self, source_dir, random.randint(0, 5))
+                    Reward((gl.all_group, gl.reward_group, gl.s_reward_group), self, random.randint(0, 5))
                 else:
-                    Reward((all_group, reward_group, p_reward_group), self, source_dir, random.randint(6, 8))
+                    Reward((gl.all_group, gl.reward_group, gl.p_reward_group), self, random.randint(6, 9))
 
     def get_meteorite_destroy(self, mete):
         if mete.img_size[0] >= 200:
@@ -135,11 +126,12 @@ class Game:
         elif mete.img_size[0] >= 50:
             score = 2
         position = [mete.rect.x + mete.img_size[0] / 2, mete.rect.y + mete.img_size[1] / 2]
-        TextAnim((all_group, text_group), mete, 10, self.anim_font, str(score), position)
+        TextAnim((gl.all_group, gl.text_group), mete, 10, self.anim_font, str(score), position)
         air.add_score(score)
 
     def collision_groups(self):
-        collisions = pygame.sprite.groupcollide(bullet_group, meteorite_group, True, False, pygame.sprite.collide_mask)
+        collisions = pygame.sprite.groupcollide(gl.bullet_group, gl.meteorite_group, True, False,
+                                                pygame.sprite.collide_mask)
         for items in collisions.items():
             bullet = items[0]
             metes = items[1]
@@ -149,7 +141,7 @@ class Game:
                     self.play_bomb_score(bullet.carrier, mete)
                     mete.destroy_start = True
                 mete.collisions += 1
-        air_collisions = pygame.sprite.groupcollide(meteorite_group, aircraft_group, False, False,
+        air_collisions = pygame.sprite.groupcollide(gl.meteorite_group, gl.aircraft_group, False, False,
                                                     pygame.sprite.collide_mask)
         for items in air_collisions.items():
             airs = items[1]
@@ -157,7 +149,7 @@ class Game:
                 if air.collisions > 0:
                     if air.power > 0:
                         for i in range(0, air.power):
-                            re = Reward((all_group, reward_group, p_reward_group), self, source_dir, 7)
+                            re = Reward((gl.all_group, gl.reward_group, gl.p_reward_group), self, 7)
                             x = random.randint(air.rect.x - 50, air.rect.x + 50)
                             if x < 0 or x > self.size[0]:
                                 x = air.rect.x
@@ -168,10 +160,10 @@ class Game:
                     self.s_bomb1.play(0, 0, 0)
                 if air.allowed_collision:
                     air.collisions += 1
-        reward_collisions = pygame.sprite.groupcollide(aircraft_group, reward_group, False, False)
+        reward_collisions = pygame.sprite.groupcollide(gl.aircraft_group, gl.reward_group, False, False)
         for items in reward_collisions.items():
-            items[0].reward((all_group, text_group), items[1])
-        bomb_collisions = pygame.sprite.groupcollide(bomb_group, meteorite_group, False, True)
+            items[0].reward((gl.all_group, gl.text_group), items[1])
+        bomb_collisions = pygame.sprite.groupcollide(gl.bomb_group, gl.meteorite_group, False, True)
         for items in bomb_collisions.items():
             bomb = items[0]
             metes = items[1]
@@ -180,26 +172,33 @@ class Game:
                 self.play_bomb_score(bomb.target, mete)
 
     def draw_groups(self):
-        for sprite in bg_group.sprites():
+        for sprite in gl.bg_group.sprites():
             self.image.blit(sprite.image, sprite.rect)
-        for sprite in meteorite_group.sprites():
-            self.image.blit(sprite.image, sprite.rect)
-        for sprite in circular_group.sprites():
-            if sprite.image is not None:
+        for sprite in gl.meteorite_group.sprites():
+            if sprite.show:
                 self.image.blit(sprite.image, sprite.rect)
-        for sprite in bullet_group.sprites():
-            self.image.blit(sprite.image, sprite.rect)
-        for sprite in bomb_group.sprites():
-            self.image.blit(sprite.image, sprite.rect)
-        for sprite in aircraft_group.sprites():
+        for sprite in gl.circular_group.sprites():
+            if sprite.image is not None and sprite.show:
+                self.image.blit(sprite.image, sprite.rect)
+        for sprite in gl.bullet_group.sprites():
+            if sprite.show:
+                self.image.blit(sprite.image, sprite.rect)
+        for sprite in gl.bomb_group.sprites():
+            if sprite.image is not None and sprite.show:
+                self.image.blit(sprite.image, sprite.rect)
+        for sprite in gl.aircraft_group.sprites():
             if sprite.allowed_collision is False and sprite.invisible is not None and sprite.invisible.image is not None:
-                self.image.blit(sprite.invisible.image, sprite.invisible.rect)
+                if sprite.show:
+                    self.image.blit(sprite.invisible.image, sprite.invisible.rect)
             elif sprite.allowed_collision:
+                if sprite.show:
+                    self.image.blit(sprite.image, sprite.rect)
+        for sprite in gl.reward_group.sprites():
+            if sprite.show:
                 self.image.blit(sprite.image, sprite.rect)
-        for sprite in reward_group.sprites():
-            self.image.blit(sprite.image, sprite.rect)
-        for sprite in text_group.sprites():
-            self.image.blit(sprite.image, sprite.rect)
+        for sprite in gl.text_group.sprites():
+            if sprite.show:
+                self.image.blit(sprite.image, sprite.rect)
 
     def control_groups(self):
         if self.Continue:
@@ -210,13 +209,13 @@ class Game:
                 self.play2 = Play(1, self.play_number)
             elif key_pressed[pygame.K_n] or key_pressed[pygame.K_ESCAPE]:
                 sys.exit()
-        for sprite in aircraft_group.sprites():
+        for sprite in gl.aircraft_group.sprites():
             if sprite.allowed_control:
                 key_pressed = pygame.key.get_pressed()
                 if key_pressed[pygame.K_SPACE]:
-                    sprite.launch_bullet(self, all_group, bullet_group)
+                    sprite.launch_bullet(self)
                 if key_pressed[pygame.K_b]:
-                    sprite.launch_bomb(all_group, bomb_group)
+                    sprite.launch_bomb()
                 if key_pressed[pygame.K_w] or key_pressed[pygame.K_UP]:
                     upr = UpdateParameter(pygame.time.get_ticks(), self.FPS)
                     upr.direction = 1
@@ -237,13 +236,15 @@ class Game:
     def show_info(self):
         score_count = self.play1.score + self.play2.score
         n = 0
-        for sprite in aircraft_group.sprites():
+        for sprite in gl.aircraft_group.sprites():
             if n == 0:
                 self.play1.bomb = sprite.bomb
+                self.play1.bomb_type = sprite.bomb_type
                 self.play1.power = sprite.power
                 self.play1.move_speed = sprite.move_speed
             elif n == 1:
                 self.play2.bomb = sprite.bomb
+                self.play2.bomb_type = sprite.bomb_type
                 self.play2.power = sprite.power
                 self.play2.move_speed = sprite.move_speed
             n += 1
@@ -251,15 +252,18 @@ class Game:
         s_position_x = (self.size[0] - score.get_size()[0]) / 2
         s_position_y = 10
         self.image.blit(score, (s_position_x, s_position_y))
-        score = self.font.render(f'P1:{self.play1.score}', True, (255, 255, 0))
+        score = self.font.render(f'玩家1得分:{self.play1.score}', True, (255, 255, 0))
         self.image.blit(score, (12, s_position_y))
-        score = self.font.render(f' B:{self.play1.bomb}', True, (255, 255, 0))
+        bstr = " 掩护轰炸"
+        if self.play1.bomb_type == 1:
+            bstr = " 集束导弹"
+        score = self.font.render(bstr + ':' + str(self.play1.bomb), True, (255, 255, 0))
         self.image.blit(score, (12, 30))
-        score = self.font.render(f' P:{self.play1.power}', True, (255, 255, 0))
+        score = self.font.render(f' 武器威力:{self.play1.power}', True, (255, 255, 0))
         self.image.blit(score, (12, 50))
-        self.image.blit(self.play1_icon, (5, 70))
+        self.image.blit(self.play1_icon, (20, 70))
         score = self.font.render(f' :{self.play1.play}', True, (255, 255, 0))
-        self.image.blit(score, (20, 72))
+        self.image.blit(score, (35, 72))
         if self.play1.play <= 0:
             score = self.font.render(f'开始或继续请按【Y】或【Enter】,退出请按【N】或【Esc】', True, (255, 255, 0))
             s_position_x = (self.size[0] - score.get_size()[0]) / 2
@@ -283,7 +287,7 @@ class Game:
             self.collision_groups()
             self.create_groups()
             self.control_groups()
-            all_group.update(updatePar)
+            gl.all_group.update(updatePar)
             self.draw_groups()
             self.show_info()
             pygame.display.flip()
